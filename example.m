@@ -1,11 +1,11 @@
 clear, clc, close all
 
 % read a sound file (carrier signal)
-[x, fsx] = audioread('carrier21.wav');
+[x, fsx] = audioread('uno-duo-stereo-epiano-chord.wav');
 x = x(:, 1);
 
 % read a sound file (modulating signal)
-[y, fsy] = audioread('sama.wav');
+[y, fsy] = audioread('numbers.wav');
 y = y(:, 1);
 
 % make x and y with equal sampling rate
@@ -38,7 +38,7 @@ nfft = wlen;
 [Y_stft, ~, ~ ] = stft(y, wlen, hop, nfft, fs);
 
 subplot(4,1,1);
-surf(t, f, 20*log10(abs(X_stft)), 'EdgeColor', 'none');
+surf(t, f, 10*log10(abs(X_stft)), 'EdgeColor', 'none');
 title("carrier signal")
 ylabel("frequency (Hz)")
 axis xy; 
