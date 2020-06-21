@@ -1,7 +1,7 @@
 clear, clc, close all
 
 % read a sound file (carrier signal)
-[x, fsx] = audioread('carrier21.wav');
+[x, fsx] = audioread('2tones.wav');
 x = x(:, 1);
 
 % read a sound file (modulating signal)
@@ -26,8 +26,8 @@ else
 end
 
 % define the analysis and synthesis parameters
-wlen = 1024;
-hop = wlen/2;
+wlen = 10000;
+hop = wlen/4;
 nfft = wlen;
 
 % perform time-frequency analysis
