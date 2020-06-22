@@ -1,11 +1,11 @@
 clear, clc, close all
 
 % read a sound file (carrier signal)
-[x, fsx] = audioread('uno-duo-stereo-epiano-chord.wav');
+[x, fsx] = audioread('carrier22.wav');
 x = x(:, 1);
 
 % read a sound file (modulating signal)
-[y, fsy] = audioread('numbers.wav');
+[y, fsy] = audioread('modulator22.wav');
 y = y(:, 1);
 
 % make x and y with equal sampling rate
