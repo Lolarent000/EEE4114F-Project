@@ -12,7 +12,7 @@ clear, clc, close all
 %
 
 % read a sound file (carrier signal)
-[x, fsx] = audioread('carrier22.wav');
+[x, fsx] = audioread('sounds/piano-classic-chords_67bpm_D#.wav');
 x = x(:, 1);
 
 fsy = 44100;
