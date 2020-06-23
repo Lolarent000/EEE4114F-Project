@@ -16,6 +16,13 @@ function Xenv = specenv(Xamp, f)
 % piecewise cubic interpolation of the spectral peaks
 % and moving average filtration of the result (span = 5)
 [Xpks, pksind] = findpeaks(Xamp+eps);
-fpks = (pksind-1)*(f(2) - f(1));
-Xenv = interp1(fpks, Xpks, f, 'pchip');
-Xenv = smooth(Xenv);
+% pksind = pksind
+if (length(pksind) > 0)
+   fpks = (pksind-1)*(f(2) - f(1));
+   Xenv = interp1(fpks, Xpks, f, 'pchip');
+   Xenv = smooth(Xenv);
+else
+   % if no peaks are found the envelope is 
+   Xenv = ones(size(Xamp));
+   Xenv = Xenv.';
+end
