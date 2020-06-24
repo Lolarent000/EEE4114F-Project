@@ -1,11 +1,11 @@
 clear, clc, close all
 
 % read a sound file (carrier signal)
-[x, fsx] = audioread('sounds/piano-classic-chords_67bpm_D#.wav');
+[x, fsx] = audioread('sounds/echopiano.wav');
 x = x(:, 1);
 
 % read a sound file (modulating signal)
-[y, fsy] = audioread('sounds/longspeech.wav');
+[y, fsy] = audioread('sounds/Alan.wav');
 y = y(:, 1);
 
 % make x and y with equal sampling rate
@@ -19,19 +19,21 @@ end
 % make x and y with equal length
 xlen = length(x);
 ylen = length(y);
-if xlen > ylen
+if xlen < ylen % if x is shorter than y repeat x to the length of y
+    x = repmat(x,1, ceil((ylen/xlen)));
+    xlen = length(x);
     x = x(1:ylen);
-else
-    y = y(1:xlen);
+else % else truncate x to match y
+    x = x(1:ylen);
 end
 
 subplot(6,1,1);
 plot(x);
-title("input x")
+title("carrier")
 
 subplot(6,1,2);
 plot(y);
-title("input y ")
+title("modulator ")
 
 % define the analysis and synthesis parameters
 wlen = 1024;
@@ -46,7 +48,7 @@ nfft = wlen;
 [Y_stft, ~, ~ ] = stft(y, wlen, hop, nfft, fs);
 
 subplot(6,1,3);
-surf(t, f, 10*log10(abs(X_stft)), 'EdgeColor', 'none');
+surf(t, f, 20*log10(abs(X_stft)), 'EdgeColor', 'none');
 title("carrier signal")
 ylabel("frequency (Hz)")
 axis xy; 
@@ -92,19 +94,21 @@ Y_stft_amp = abs(Y_stft);
 for k = 1:size(Y_stft_amp, 2)
     Y_env(:, k) = specenv(Y_stft_amp(:, k), f);
 end
-% 
+
 % % memory optimization
-% clear X_stft_amp Y_stft_amp Y_stft
+clear X_stft_amp Y_stft_amp Y_stft
 % 
 p = 0.5;
-q = 7/10;
+q = 10/10;
 % cross-synthesis
-X_flat = (X_stft./X_env);
-Z_stft = (X_flat.*(Y_env)).^q;
+% X_flat = (X_stft./X_env);
+X_flat = X_stft;
 
-X_flat = X_flat.^p;
-Y_env = Y_env.^(1-p);
-Z_s
+Z_stft = (X_flat.*(Y_env));
+
+% X_flat = X_flat.^p;
+% Y_env = Y_env.^(1-p);
+% Z_stft = (X_flat.*(Y_env)).^(q);
 
 z = istft(Z_stft, wlen, hop, nfft, fs);
 
@@ -127,5 +131,9 @@ title("output signal")
 % % memory optimization
 % clear X_stft Z_stft X_env Y_env
 % 
+
 % % hear the result signal
 soundsc(z, fs)
+
+% write audio out
+audiowrite('output.wav', z, fs);

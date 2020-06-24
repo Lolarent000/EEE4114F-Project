@@ -1,11 +1,17 @@
 clear, clc, close all
 
+% params
+p = 0.55; % 0 emphasises carrier, 1 emphasises modulator
+q = 10/10; % 0.5 is geometric mean
+wlen = 1024;
+
+
 % read a sound file (carrier signal)
-[x, fsx] = audioread('sounds/string-melody-17_125bpm_C_major.wav');
+[x, fsx] = audioread('sounds/carrier22.wav');
 x = x(:, 1);
 
 % read a sound file (modulating signal)
-[y, fsy] = audioread('sounds/longspeech.wav');
+[y, fsy] = audioread('sounds/Alan.wav');
 y = y(:, 1);
 
 % make x and y with equal sampling rate
@@ -27,6 +33,16 @@ else % else truncate x to match y
     x = x(1:ylen);
 end
 
+% % make x and y with equal length
+% xlen = length(x);
+% ylen = length(y);
+% if xlen > ylen
+%     x = x(1:ylen);
+% else
+%     y = y(1:xlen);
+% end
+
+figure(1);
 subplot(6,1,1);
 plot(x);
 title("carrier")
@@ -36,7 +52,6 @@ plot(y);
 title("modulator ")
 
 % define the analysis and synthesis parameters
-wlen = 1024;
 hop = wlen/4;
 nfft = wlen;
 
@@ -65,21 +80,6 @@ axis tight;
 colormap(jet); view(0,90);
 colorbar;
 
-% subplot(4,1,3);
-% surf(t_1, f_1, 20*log10(abs(X_stft_1)), 'EdgeColor', 'none');
-% axis xy; 
-% axis tight; 
-% colormap(jet); view(0,90);
-% colorbar;
-% 
-% subplot(4,1,4);
-% surf(t_1, f_1, 20*log10(abs(Y_stft_1)), 'EdgeColor', 'none');
-% axis xy; 
-% axis tight; 
-% colormap(jet); view(0,90);
-% xlabel('Time (secs)');
-% colorbar;
-
 % memory optimization
 clear x y
 
@@ -94,21 +94,19 @@ Y_stft_amp = abs(Y_stft);
 for k = 1:size(Y_stft_amp, 2)
     Y_env(:, k) = specenv(Y_stft_amp(:, k), f);
 end
-% 
-% % memory optimization
+
+% memory optimization
 clear X_stft_amp Y_stft_amp Y_stft
-% 
-p = 0.5;
-q = 10/10;
+
 % cross-synthesis
-% X_flat = (X_stft./X_env);
-X_flat = X_stft;
+X_flat = (X_stft./X_env);
+% X_flat = X_stft;
 
-Z_stft = (X_flat.*(Y_env));
+% Z_stft = (X_flat.*(Y_env));
 
-% X_flat = X_flat.^p;
-% Y_env = Y_env.^(1-p);
-% Z_stft = (X_flat.*(Y_env)).^(q);
+X_flat = X_flat.^p;
+Y_env = Y_env.^(1-p);
+Z_stft = (X_flat.*(Y_env)).^(2*q);
 
 z = istft(Z_stft, wlen, hop, nfft, fs);
 
@@ -125,11 +123,28 @@ subplot(6,1,6);
 plot(z);
 title("output signal")
 
+figure(2);
+subplot(2,1,1);
+surf(t, f, 20*log10(abs(Z_stft)), 'EdgeColor', 'none');
+title("Output spectrogram")
+ylabel("frequency (Hz)")
+axis xy; 
+axis tight; 
+colormap(jet); view(0,90);
+colorbar;
+
+subplot(2,1,2);
+plot(z);
+title("output signal")
 
 % % plot(f, X_stft);
 % 
 % % memory optimization
 % clear X_stft Z_stft X_env Y_env
 % 
+
 % % hear the result signal
 soundsc(z, fs)
+
+% write audio out
+audiowrite('output.wav', z, fs);
