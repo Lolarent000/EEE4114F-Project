@@ -1,17 +1,16 @@
 clear, clc, close all
 
 % params
-p = 0.55; % 0 emphasises carrier, 1 emphasises modulator
+p = 0.5; % 0 emphasises carrier, 1 emphasises modulator
 q = 10/10; % 0.5 is geometric mean
-wlen = 1024;
-
+wlen = 40000;
 
 % read a sound file (carrier signal)
 [x, fsx] = audioread('sounds/carrier22.wav');
 x = x(:, 1);
 
 % read a sound file (modulating signal)
-[y, fsy] = audioread('sounds/Alan.wav');
+[y, fsy] = audioread('sounds/AlanCutoff.wav');
 y = y(:, 1);
 
 % make x and y with equal sampling rate
@@ -33,6 +32,22 @@ else % else truncate x to match y
     x = x(1:ylen);
 end
 
+% correct wlen
+disp(wlen)
+wlenDiv = length(x)/wlen;
+disp(wlenDiv);
+wlenDivWhole = floor(wlenDiv);
+wlenDivFrac = wlenDiv - wlenDivWhole;
+if wlenDivFrac < 0.45
+    wlen = length(x)/wlenDivWhole;
+elseif wlenDivFrac < 0.9
+    wlen = length(x)/(wlenDivWhole + 1);
+end
+wlen = floor(wlen / 4) * 4;
+disp(wlen);
+wlenDiv = length(x)/wlen;
+disp(wlenDiv);
+
 % % make x and y with equal length
 % xlen = length(x);
 % ylen = length(y);
@@ -41,6 +56,8 @@ end
 % else
 %     y = y(1:xlen);
 % end
+
+% plotting
 
 figure(1);
 subplot(6,1,1);
@@ -143,7 +160,7 @@ title("output signal")
 % clear X_stft Z_stft X_env Y_env
 % 
 
-% % hear the result signal
+% hear the result signal
 soundsc(z, fs)
 
 % write audio out
