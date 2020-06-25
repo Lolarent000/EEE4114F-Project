@@ -1,9 +1,9 @@
 clear, clc, close all
 
 % params
-p = 0.7; % 0 emphasises carrier, 1 emphasises modulator
+p = 0.5; % 0 emphasises carrier, 1 emphasises modulator
 q = 10/10; % 0.5 is geometric mean
-wlen = 2048;
+wlen = 1024;
 
 % read a sound file (carrier signal)
 [x, fsx] = audioread('sounds/rhodes-piano-chords_125bpm_G_minor.wav');
@@ -38,11 +38,10 @@ wlenDiv = length(x)/wlen;
 disp(wlenDiv);
 wlenDivWhole = floor(wlenDiv);
 wlenDivFrac = wlenDiv - wlenDivWhole;
-if wlenDivFrac < 0.45
-    wlen = length(x)/wlenDivWhole;
-elseif wlenDivFrac < 0.9
-    wlen = length(x)/(wlenDivWhole + 1);
+if wlenDivFrac < 0.9
+    wlen = floor(length(x)/(wlenDivWhole + 1));
 end
+disp(wlen)
 wlen = floor(wlen / 4) * 4;
 disp(wlen);
 wlenDiv = length(x)/wlen;
@@ -150,8 +149,8 @@ title("output signal")
 % clear X_stft Z_stft X_env Y_env
 % 
 
-% hear the result signal
-soundsc(z, fs)
+% % hear the result signal
+% soundsc(z, fs)
 
 % write audio out
 audiowrite('output.wav', z, fs);
